@@ -1,5 +1,7 @@
 # 脚本管理器
 
+中文 | [English](README.md)
+
 一个用于管理和执行各类脚本的Windows桌面应用程序。
 
 ## 主要功能
@@ -29,9 +31,9 @@
 - 支持设置环境变量和依赖管理
 - 提供API接口，支持外部系统调用
 - 支持主题切换，深色/浅色模式
+- 多语言支持（中文/英文）
 
 ## 使用场景
-
 - 运维自动化工具管理
 - 数据处理脚本管理
 - 测试用例批量执行
@@ -39,9 +41,43 @@
 - 开发辅助工具集成
 
 ## 技术特点
-
 - 基于Python 3开发，使用PyQt6构建现代化界面
 - SQLite本地数据存储，轻量高效
 - 模块化设计，易于扩展
-- 内置脚本执行引擎，支持多种脚本语言
+- 内置脚本执行引擎
 - 统一的日志记录和异常处理机制
+
+## 安装说明
+
+1. 克隆仓库：
+   `git clone https://github.com/yourusername/script-manager.git`
+
+2. 安装依赖：
+   `pip install -r requirements.txt`
+
+3. 运行应用：
+   `python main.py`
+
+## 开发说明
+
+1. 创建虚拟环境：
+   `python -m venv venv`
+
+2. 激活虚拟环境：
+   - Windows: `venv\Scripts\activate`
+   - Unix/MacOS: `source venv/bin/activate`
+
+3. 安装开发依赖：
+   `pip install -r requirements-dev.txt`
+
+## 贡献代码
+
+1. Fork 本仓库
+2. 创建功能分支
+3. 提交更改
+4. 推送到分支
+5. 创建 Pull Request
+
+## 许可证
+
+本项目采用 MIT 许可证 - 查看 LICENSE 文件了解详情。 
