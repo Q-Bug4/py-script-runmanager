@@ -1,17 +1,20 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QToolBar, QStatusBar, QSplitter, QMessageBox,
-                           QInputDialog, QListWidget, QListWidgetItem)
+                           QInputDialog, QListWidget, QListWidgetItem, QMenu,
+                           QMenuBar)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from database.db_manager import get_db
 from database.models import Script
 from .script_editor import ScriptEditorWidget
 from .execution_panel import ExecutionPanel
+from utils.i18n import I18n
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("脚本管理器")
+        self.i18n = I18n()
+        self.setWindowTitle(self.i18n.tr("脚本管理器"))
         self.setMinimumSize(1000, 600)
         
         # 创建中心部件
@@ -34,34 +37,61 @@ class MainWindow(QMainWindow):
         
         # 加载脚本列表
         self.load_scripts()
+        
+        # 创建菜单栏
+        self.create_menu_bar()
+    
+    def create_menu_bar(self):
+        """创建菜单栏"""
+        menubar = self.menuBar()
+        
+        # 语言菜单
+        language_menu = menubar.addMenu(self.i18n.tr("语言"))
+        
+        chinese_action = QAction(self.i18n.tr("中文"), self)
+        chinese_action.triggered.connect(lambda: self.change_language("zh-CN"))
+        language_menu.addAction(chinese_action)
+        
+        english_action = QAction(self.i18n.tr("英文"), self)
+        english_action.triggered.connect(lambda: self.change_language("en"))
+        language_menu.addAction(english_action)
+    
+    def change_language(self, language: str):
+        """更改语言设置"""
+        self.i18n.change_language(language)
+        QMessageBox.information(
+            self,
+            self.i18n.tr("提示"),
+            self.i18n.tr("语言设置将在重启应用后生效")
+        )
     
     def create_toolbar(self):
         toolbar = QToolBar()
         self.addToolBar(toolbar)
         
         # 新建脚本
-        new_action = QAction("新建脚本", self)
-        new_action.setStatusTip("创建新的Python脚本")
+        new_action = QAction(self.i18n.tr("新建脚本"), self)
+        new_action.setStatusTip(self.i18n.tr("创建新的Python脚本"))
         new_action.triggered.connect(self.new_script)
         toolbar.addAction(new_action)
         
         # 保存脚本
-        save_action = QAction("保存", self)
-        save_action.setStatusTip("保存当前脚本")
+        save_action = QAction(self.i18n.tr("保存"), self)
+        save_action.setStatusTip(self.i18n.tr("保存当前脚本"))
         save_action.triggered.connect(self.save_script)
         toolbar.addAction(save_action)
         
         toolbar.addSeparator()
         
         # 运行脚本
-        run_action = QAction("运行", self)
-        run_action.setStatusTip("运行当前脚本")
+        run_action = QAction(self.i18n.tr("运行"), self)
+        run_action.setStatusTip(self.i18n.tr("运行当前脚本"))
         run_action.triggered.connect(self.run_script)
         toolbar.addAction(run_action)
         
         # 删除脚本
-        delete_action = QAction("删除脚本", self)
-        delete_action.setStatusTip("删除当前选中的脚本")
+        delete_action = QAction(self.i18n.tr("删除脚本"), self)
+        delete_action.setStatusTip(self.i18n.tr("删除当前选中的脚本"))
         delete_action.triggered.connect(self.delete_script)
         toolbar.addAction(delete_action)
     
@@ -92,13 +122,13 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(splitter)
     
     def new_script(self):
-        name, ok = QInputDialog.getText(self, "新建脚本", "请输入脚本名称：")
+        name, ok = QInputDialog.getText(self, self.i18n.tr("新建脚本"), self.i18n.tr("请输入脚本名称："))
         if ok and name:
             try:
                 db = next(get_db())
                 script = Script(
                     name=name,
-                    content="# 在这里编写Python代码\n",
+                    content="# Write your Python code here\n",
                     type="python"
                 )
                 db.add(script)
@@ -106,14 +136,14 @@ class MainWindow(QMainWindow):
                 
                 self.current_script_id = script.id
                 self.editor.set_content(script.content)
-                self.statusBar.showMessage(f"创建脚本：{name}")
-                self.load_scripts()  # 刷新脚本列表
+                self.statusBar.showMessage(self.i18n.tr("创建脚本：") + name)
+                self.load_scripts()
             except Exception as e:
-                QMessageBox.critical(self, "错误", f"创建脚本失败：{str(e)}")
+                QMessageBox.critical(self, self.i18n.tr("错误"), self.i18n.tr("创建脚本失败：") + str(e))
     
     def save_script(self):
         if not self.current_script_id:
-            QMessageBox.warning(self, "警告", "请先创建或选择一个脚本")
+            QMessageBox.warning(self, self.i18n.tr("警告"), self.i18n.tr("请先创建或选择一个脚本"))
             return
         
         try:
@@ -122,13 +152,13 @@ class MainWindow(QMainWindow):
             if script:
                 script.content = self.editor.get_content()
                 db.commit()
-                self.statusBar.showMessage("脚本已保存")
+                self.statusBar.showMessage(self.i18n.tr("脚本已保存"))
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"保存脚本失败：{str(e)}")
+            QMessageBox.critical(self, self.i18n.tr("错误"), self.i18n.tr(f"保存脚本失败：{str(e)}"))
     
     def run_script(self):
         if not self.current_script_id:
-            QMessageBox.warning(self, "警告", "请先创建或选择一个脚本")
+            QMessageBox.warning(self, self.i18n.tr("警告"), self.i18n.tr("请先创建或选择一个脚本"))
             return
         
         content = self.editor.get_content()
@@ -147,7 +177,7 @@ class MainWindow(QMainWindow):
                 self.script_list.addItem(item)
                 
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"加载脚本列表失败：{str(e)}")
+            QMessageBox.critical(self, self.i18n.tr("错误"), self.i18n.tr(f"加载脚本列表失败：{str(e)}"))
     
     def on_script_selected(self, item):
         """当选择脚本列表中的项目时触发"""
@@ -158,18 +188,18 @@ class MainWindow(QMainWindow):
             if script:
                 self.current_script_id = script.id
                 self.editor.set_content(script.content)
-                self.statusBar.showMessage(f"已加载脚本：{script.name}")
+                self.statusBar.showMessage(self.i18n.tr("已加载脚本：") + script.name)
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"加载脚本失败：{str(e)}")
+            QMessageBox.critical(self, self.i18n.tr("错误"), self.i18n.tr("加载脚本失败：") + str(e))
     
     def delete_script(self):
         """删除当前选中的脚本"""
         if not self.current_script_id:
-            QMessageBox.warning(self, "警告", "请先选择一个脚本")
+            QMessageBox.warning(self, self.i18n.tr("警告"), self.i18n.tr("请先选择一个脚本"))
             return
             
-        reply = QMessageBox.question(self, "确认删除", 
-                                   "确定要删除这个脚本吗？此操作不可撤销。",
+        reply = QMessageBox.question(self, self.i18n.tr("确认删除"), 
+                                   self.i18n.tr("确定要删除这个脚本吗？此操作不可撤销。"),
                                    QMessageBox.StandardButton.Yes | 
                                    QMessageBox.StandardButton.No)
         
@@ -183,6 +213,6 @@ class MainWindow(QMainWindow):
                     self.current_script_id = None
                     self.editor.set_content("")
                     self.load_scripts()  # 重新加载脚本列表
-                    self.statusBar.showMessage("脚本已删除")
+                    self.statusBar.showMessage(self.i18n.tr("脚本已删除"))
             except Exception as e:
-                QMessageBox.critical(self, "错误", f"删除脚本失败：{str(e)}")
+                QMessageBox.critical(self, self.i18n.tr("错误"), self.i18n.tr(f"删除脚本失败：{str(e)}"))

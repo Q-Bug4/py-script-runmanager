@@ -1,0 +1,9 @@
+{
+    "language": "zh-CN",
+    "theme": "light",
+    "editor_font_size": 12,
+    "editor_font_family": "Consolas",
+    "show_line_numbers": true,
+    "auto_save": true,
+    "default_script_type": "python"
+}

@@ -29,6 +29,7 @@ class Config:
         
         # 用户配置默认值
         self.user_config = {
+            "language": "auto",
             "theme": "light",
             "editor_font_size": 12,
             "editor_font_family": "Consolas",
@@ -44,9 +45,9 @@ class Config:
                 self.system_config.update(saved_config)
             
             if os.path.exists(self.user_config_file):
-                saved_user_config = json.loads(read_file(self.user_config_file))
-                self.user_config.update(saved_user_config)
-                
+                with open(self.user_config_file, 'r', encoding='utf-8') as f:
+                    saved_config = json.load(f)
+                    self.user_config.update(saved_config)
         except Exception as e:
             logger.error(f"Failed to load config: {str(e)}")
     
@@ -88,4 +89,12 @@ class Config:
         """重置用户配置"""
         if os.path.exists(self.user_config_file):
             os.remove(self.user_config_file)
-        self._load_configs() 
+        self._load_configs()
+    
+    def save_user_config(self):
+        """保存用户配置"""
+        try:
+            with open(self.user_config_file, 'w', encoding='utf-8') as f:
+                json.dump(self.user_config, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            print(f"Failed to save user config: {str(e)}") 

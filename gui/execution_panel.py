@@ -1,10 +1,12 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QPushButton
 from PyQt6.QtCore import QProcess
 import sys
+from utils.i18n import I18n
 
 class ExecutionPanel(QWidget):
     def __init__(self):
         super().__init__()
+        self.i18n = I18n()
         self.layout = QVBoxLayout(self)
         
         # 创建输出显示区域
@@ -13,7 +15,7 @@ class ExecutionPanel(QWidget):
         self.layout.addWidget(self.output_text)
         
         # 清除按钮
-        self.clear_button = QPushButton("清除输出")
+        self.clear_button = QPushButton(self.i18n.tr("清除输出"))
         self.clear_button.clicked.connect(self.clear_output)
         self.layout.addWidget(self.clear_button)
         
@@ -28,7 +30,7 @@ class ExecutionPanel(QWidget):
             self.process.finished.connect(self.handle_finished)
         
         self.output_text.clear()
-        self.output_text.append("开始执行脚本...\n")
+        self.output_text.append(self.i18n.tr("开始执行脚本...") + "\n")
         
         # 将脚本内容写入临时文件
         with open("temp_script.py", "w", encoding="utf-8") as f:
