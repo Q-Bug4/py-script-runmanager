@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                            QToolBar, QStatusBar, QSplitter, QMessageBox,
-                           QInputDialog)
+                           QInputDialog, QListWidget, QListWidgetItem)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from database.db_manager import get_db
@@ -58,10 +58,20 @@ class MainWindow(QMainWindow):
         run_action.setStatusTip("运行当前脚本")
         run_action.triggered.connect(self.run_script)
         toolbar.addAction(run_action)
+        
+        # 删除脚本
+        delete_action = QAction("删除脚本", self)
+        delete_action.setStatusTip("删除当前选中的脚本")
+        delete_action.triggered.connect(self.delete_script)
+        toolbar.addAction(delete_action)
     
     def create_main_ui(self):
         # 创建水平分割器
         splitter = QSplitter(Qt.Orientation.Horizontal)
+        
+        # 创建脚本列表
+        self.script_list = QListWidget()
+        self.script_list.itemClicked.connect(self.on_script_selected)
         
         # 创建脚本编辑器
         self.editor = ScriptEditorWidget()
@@ -70,12 +80,14 @@ class MainWindow(QMainWindow):
         self.execution_panel = ExecutionPanel()
         
         # 添加到分割器
+        splitter.addWidget(self.script_list)
         splitter.addWidget(self.editor)
         splitter.addWidget(self.execution_panel)
         
         # 设置分割器比例
-        splitter.setStretchFactor(0, 2)
-        splitter.setStretchFactor(1, 1)
+        splitter.setStretchFactor(0, 1)  # 脚本列表
+        splitter.setStretchFactor(1, 4)  # 编辑器
+        splitter.setStretchFactor(2, 2)  # 执行面板
         
         self.layout.addWidget(splitter)
     
@@ -95,6 +107,7 @@ class MainWindow(QMainWindow):
                 self.current_script_id = script.id
                 self.editor.set_content(script.content)
                 self.statusBar.showMessage(f"创建脚本：{name}")
+                self.load_scripts()  # 刷新脚本列表
             except Exception as e:
                 QMessageBox.critical(self, "错误", f"创建脚本失败：{str(e)}")
     
@@ -122,8 +135,54 @@ class MainWindow(QMainWindow):
         self.execution_panel.run_script(content)
     
     def load_scripts(self):
-        """
-        Load scripts from the configured directory
-        """
-        # Add your script loading logic here
-        pass  # Temporary placeholder - replace with actual implementation 
+        """加载所有脚本到列表中"""
+        try:
+            self.script_list.clear()
+            db = next(get_db())
+            scripts = db.query(Script).all()
+            
+            for script in scripts:
+                item = QListWidgetItem(script.name)
+                item.setData(Qt.ItemDataRole.UserRole, script.id)
+                self.script_list.addItem(item)
+                
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"加载脚本列表失败：{str(e)}")
+    
+    def on_script_selected(self, item):
+        """当选择脚本列表中的项目时触发"""
+        script_id = item.data(Qt.ItemDataRole.UserRole)
+        try:
+            db = next(get_db())
+            script = db.query(Script).get(script_id)
+            if script:
+                self.current_script_id = script.id
+                self.editor.set_content(script.content)
+                self.statusBar.showMessage(f"已加载脚本：{script.name}")
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"加载脚本失败：{str(e)}")
+    
+    def delete_script(self):
+        """删除当前选中的脚本"""
+        if not self.current_script_id:
+            QMessageBox.warning(self, "警告", "请先选择一个脚本")
+            return
+            
+        reply = QMessageBox.question(self, "确认删除", 
+                                   "确定要删除这个脚本吗？此操作不可撤销。",
+                                   QMessageBox.StandardButton.Yes | 
+                                   QMessageBox.StandardButton.No)
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            try:
+                db = next(get_db())
+                script = db.query(Script).get(self.current_script_id)
+                if script:
+                    db.delete(script)
+                    db.commit()
+                    self.current_script_id = None
+                    self.editor.set_content("")
+                    self.load_scripts()  # 重新加载脚本列表
+                    self.statusBar.showMessage("脚本已删除")
+            except Exception as e:
+                QMessageBox.critical(self, "错误", f"删除脚本失败：{str(e)}")
