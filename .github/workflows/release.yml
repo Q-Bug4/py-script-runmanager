@@ -33,7 +33,6 @@ jobs:
           --add-data "translations;translations" `
           --add-data "version.txt;." `
           --name "ScriptToolBox" `
-          --icon "resources/icon.ico" `
           main.py
     
     - name: Create Release
