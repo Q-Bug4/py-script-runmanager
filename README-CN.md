@@ -1,74 +1,48 @@
-# 脚本管理器
+# 脚本工具箱
 
 中文 | [English](README.md)
 
-一个用于管理和执行各类脚本的Windows桌面应用程序。
+一个带现代图形界面的轻量级Python脚本管理和执行工具。
 
-## 主要功能
+## 功能特性
 
 ### 脚本管理
-- 支持添加、编辑、删除和组织多种类型的脚本文件(Python、Node.js、Shell等)
-- 脚本分类管理，支持按照用途、类型等进行分组
-- 脚本版本控制，保留历史版本记录
-- 支持导入/导出脚本配置
+- 创建、编辑、保存和删除Python脚本
+- 脚本列表管理
+- 语法高亮编辑器
+- 自动保存支持
 
-### 可视化执行
-- 友好的图形界面，无需命令行操作
-- 智能识别脚本参数，自动生成参数输入表单
-- 支持设置参数默认值和参数说明
-- 支持保存常用参数组合，快速复用
+### 脚本执行
+- 实时脚本执行
+- 实时输出显示
+- 清除输出功能
+- Python解释器集成
 
-### 运行管理
-- 实时查看脚本执行状态和输出日志
-- 支持中断正在执行的脚本
-- 执行历史记录，包含参数信息和运行结果
-- 支持设置脚本运行超时时间
-- 异常处理和错误日志记录
-
-### 其他特性
-- 支持多用户管理，不同用户脚本隔离
-- 权限控制，可设置脚本访问和执行权限
-- 支持设置环境变量和依赖管理
-- 提供API接口，支持外部系统调用
-- 支持主题切换，深色/浅色模式
+### 用户界面
+- 基于PyQt6的现代图形界面
 - 多语言支持（中文/英文）
+- 状态栏通知
+- 直观的工具栏操作
 
-## 使用场景
-- 运维自动化工具管理
-- 数据处理脚本管理
-- 测试用例批量执行
-- 定时任务管理
-- 开发辅助工具集成
-
-## 技术特点
-- 基于Python 3开发，使用PyQt6构建现代化界面
-- SQLite本地数据存储，轻量高效
-- 模块化设计，易于扩展
-- 内置脚本执行引擎
-- 统一的日志记录和异常处理机制
+## 技术栈
+- Python 3
+- PyQt6 图形界面
+- SQLite 数据存储
+- 内置Python脚本执行
 
 ## 安装说明
 
-1. 克隆仓库：
-   `git clone https://github.com/yourusername/script-manager.git`
-
-2. 安装依赖：
-   `pip install -r requirements.txt`
-
-3. 运行应用：
-   `python main.py`
+1. 克隆仓库：`git clone https://github.com/yourusername/script-tool-box.git`
+2. 安装依赖：`pip install -r requirements.txt`
+3. 运行应用：`python main.py`
 
 ## 开发说明
 
-1. 创建虚拟环境：
-   `python -m venv venv`
-
+1. 创建虚拟环境：`python -m venv venv`
 2. 激活虚拟环境：
    - Windows: `venv\Scripts\activate`
    - Unix/MacOS: `source venv/bin/activate`
-
-3. 安装开发依赖：
-   `pip install -r requirements-dev.txt`
+3. 安装依赖：`pip install -r requirements.txt`
 
 ## 贡献代码
 
